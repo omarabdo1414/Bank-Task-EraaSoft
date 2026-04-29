@@ -2,6 +2,7 @@ import Modal from '../components/Modal.jsx';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Button from '../components/Button.jsx';
+import { userInfo } from '../data/data.js';
 
 const BankPage = () => {
     const [transitionVisible, setTransitionVisible] = useState(false);
@@ -9,6 +10,8 @@ const BankPage = () => {
 		const stored = localStorage.getItem("userInfo");
 		return stored ? JSON.parse(stored) : { accountBalance: 0, transactions: [] };
 	});
+
+	localStorage.setItem("userInfo", JSON.stringify(userInfo));
 
     const handleViewTransaction = () => {
         setTransitionVisible(!transitionVisible);

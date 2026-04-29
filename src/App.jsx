@@ -4,6 +4,7 @@ import BankPage from './pages/BankPage';
 import Form from './components/Form';
 import { Toaster } from 'react-hot-toast';
 
+
 const App = () => {
 	return (
 		<>
