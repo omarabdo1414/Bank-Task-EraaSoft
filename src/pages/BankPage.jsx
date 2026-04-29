@@ -1,15 +1,40 @@
 import Modal from '../components/Modal.jsx';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import Button from '../components/Button.jsx';
 
 const BankPage = () => {
     const [transitionVisible, setTransitionVisible] = useState(false);
-	
+	const [userData, setUserData] = useState(() => {
+		const stored = localStorage.getItem("userInfo");
+		return stored ? JSON.parse(stored) : { accountBalance: 0, transactions: [] };
+	});
 
     const handleViewTransaction = () => {
         setTransitionVisible(!transitionVisible);
     };
 
-	const userInfo = localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : null; 
+	const refreshUserData = () => {
+		const stored = localStorage.getItem("userInfo");
+		setUserData(stored ? JSON.parse(stored) : { accountBalance: 0, transactions: [] });
+	};
+
+	const handleRemoveLastTransaction = () => {
+		if (!userData.transactions?.length) {
+			toast.error("No transactions to remove");
+			return;
+		}
+
+		const updatedInfo = {
+			...userData,
+			transactions: [...userData.transactions]
+		};
+		updatedInfo.transactions.pop();
+
+		localStorage.setItem("userInfo", JSON.stringify(updatedInfo));
+		setUserData(updatedInfo);
+		toast.success("Last transaction removed");
+	};
 
   return (
     <div className="min-h-screen bg-linear-to-br from-green-50 to-orange-50 p-8">
@@ -26,7 +51,7 @@ const BankPage = () => {
 						{/* Balance Card */}
 						<div className="bg-linear-to-r from-green-500 to-green-600 rounded-2xl shadow-xl p-6 text-white">
 							<h2 className="text-lg font-semibold mb-2">Current Balance</h2>
-							<p className="text-4xl font-bold">${userInfo?.accountBalance || 0}</p>
+							<p className="text-4xl font-bold">${userData?.accountBalance || 0}</p>
 							<p className="text-green-100 mt-2">Available funds</p>
 						</div>
 
@@ -42,7 +67,7 @@ const BankPage = () => {
 											<p className="text-sm text-gray-600">Add funds to your account</p>
 										</div>
 										
-										<Modal action_type="deposit" />
+										<Modal action_type="deposit" onTransactionComplete={refreshUserData} />
 									</div>
 								</div>
 
@@ -52,7 +77,7 @@ const BankPage = () => {
 											<h4 className="font-semibold text-gray-800">Withdraw</h4>
 											<p className="text-sm text-gray-600">Take money from your account</p>
 										</div>
-										<Modal action_type="withdraw" />
+										<Modal action_type="withdraw" onTransactionComplete={refreshUserData} />
 									</div>
 								</div>
 							</div>
@@ -63,16 +88,23 @@ const BankPage = () => {
 					<div className="lg:col-span-2">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-gray-800">Transaction History</h2>
-                            <button 
-                            onClick={handleViewTransaction}
-                            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors">
-                                {transitionVisible ? 'Hide' : 'Show'}
-                            </button>
+							<div className="flex gap-3">
+								<Button
+									label="Remove Last"
+									onClick={handleRemoveLastTransaction}
+									className="bg-red-500 hover:bg-red-600"
+								/>
+								<Button
+									label={transitionVisible ? 'Hide' : 'Show'}
+									onClick={handleViewTransaction}
+									className="bg-orange-500 hover:bg-orange-600"
+								/>
+							</div>
                         </div>
                         {transitionVisible ? <div className="bg-white rounded-2xl shadow-lg p-6">
 							<div className="space-y-4">
 								{/* Transaction Items */}
-								{userInfo.transactions.map((transactions, index) => {
+								{userData.transactions.map((transactions, index) => {
 									return (
 										<div key={index} className={transactions.type === "deposit" ? "border-l-4 border-green-500 bg-green-50 p-4 rounded-r-lg" : "border-l-4 border-red-500 bg-red-50 p-4 rounded-r-lg"}>
 											<div className="flex items-center justify-between">

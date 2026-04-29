@@ -3,7 +3,7 @@ import { userInfo } from '../data/data.js'
 import toast from 'react-hot-toast';
 import moment from 'moment';
 
-const Modal = ({action_type}) => {
+const Modal = ({ action_type, onTransactionComplete }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState('');
 
@@ -39,6 +39,7 @@ const Modal = ({action_type}) => {
     // Save to localStorage
     localStorage.setItem("userInfo", JSON.stringify(info));
     toast.success("Deposit successful");
+    onTransactionComplete?.();
 
     closeModal();
   }
@@ -71,6 +72,7 @@ const Modal = ({action_type}) => {
     localStorage.setItem("userInfo", JSON.stringify(info));
     console.log("Withdraw successful", userInfo.accountBalance);
     toast.success("Withdraw successful");
+    onTransactionComplete?.();
 
     closeModal();
   }
